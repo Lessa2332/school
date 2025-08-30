@@ -77,8 +77,8 @@
     // Автоматичні пропорції відео
     arVideo.addEventListener('loadedmetadata', () => {
       const aspect = arVideo.videoWidth / arVideo.videoHeight;
-      arVideo.setAttribute('width', aspect * 2);
-      arVideo.setAttribute('height', 2);
+      arVideo.setAttribute('width', aspect * 3);
+      arVideo.setAttribute('height', 3);
     });
 
     marker.addEventListener('markerFound', () => {
@@ -100,3 +100,4 @@
   </script>
 </body>
 </html>
+
