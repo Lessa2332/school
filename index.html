@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>AR Камера</title>
 
-  <!-- 🔧 Виправлено: видалено пробіли в кінці URL -->
+  <!-- Стабільні CDN -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-  <!-- ✅ Краще: використовуємо jsDelivr замість raw.githack -->
   <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.0/aframe/build/aframe-ar.js"></script>
 
   <style>
@@ -19,6 +18,7 @@
       overflow: hidden;
       touch-action: none;
       font-family: Arial, sans-serif;
+      background: #000; /* чорний фон для кращого контрасту */
     }
 
     a-scene {
@@ -42,6 +42,7 @@
       z-index: 10;
       text-align: center;
       width: 90%;
+      pointer-events: none;
     }
 
     #smartLessaBtn {
@@ -72,10 +73,10 @@
 
   <!-- AR Сцена -->
   <a-scene 
-    embedded 
-    arjs="sourceType: webcam; 
-          detectionMode: mono; 
-          trackingMethod: best; 
+    embedded
+    arjs="sourceType: webcam;
+          detectionMode: mono;
+          trackingMethod: best;
           debugUIEnabled: false;">
     
     <a-marker id="marker" type="pattern" url="marker.patt">
@@ -84,7 +85,7 @@
         src="ar-video.mp4" 
         position="0 0 0" 
         rotation="-90 0 0"
-        width="1.77" 
+        width="1.77"
         height="1"
         autoplay="false"
         muted="true"
@@ -104,31 +105,32 @@
     const scanText = document.getElementById('scanText');
     const arVideo = document.getElementById('arVideo');
 
-    // Автоматичні пропорції відео
+    // Встановлюємо пропорції відео після завантаження метаданих
     arVideo.addEventListener('loadedmetadata', () => {
       const aspect = arVideo.videoWidth / arVideo.videoHeight;
       arVideo.setAttribute('width', aspect);
       arVideo.setAttribute('height', 1);
     });
 
-    // Показуємо/приховуємо текст при знаходженні маркера
+    // Коли маркер знайдено
     marker.addEventListener('markerFound', () => {
       scanText.style.display = 'none';
-      arVideo.muted = false; // увімкнути звук після знайдення
+      arVideo.muted = false; // тепер можна увімкнути звук
       arVideo.play().catch(e => console.error("Відео не відтворилось:", e));
     });
 
+    // Коли маркер втрачено
     marker.addEventListener('markerLost', () => {
       scanText.style.display = 'block';
       arVideo.pause();
     });
 
-    // Активація медіа при кліку (для звуку)
+    // 🔊 Активація медіа при кліку (необхідно для звуку)
     document.body.addEventListener('click', () => {
       arVideo.play().catch(() => {});
     }, { once: true });
 
-    // Фікс висоти для мобільних
+    // Фікс висоти для мобільних браузерів
     function fixHeight() {
       document.body.style.height = window.innerHeight + 'px';
     }
