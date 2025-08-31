@@ -16,9 +16,9 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      touch-action: none;
+      touch-action: manipulation;
       font-family: Arial, sans-serif;
-      background: #000; /* чорний фон для кращого контрасту */
+      background: #000;
     }
 
     a-scene {
@@ -61,7 +61,8 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
-    #smartLessaBtn:hover {
+    #smartLessaBtn:hover,
+    #smartLessaBtn:active {
       background: #cc0036;
     }
   </style>
@@ -73,7 +74,6 @@
 
   <!-- AR Сцена -->
   <a-scene 
-    embedded
     arjs="sourceType: webcam;
           detectionMode: mono;
           trackingMethod: best;
@@ -87,8 +87,6 @@
         rotation="-90 0 0"
         width="1.77"
         height="1"
-        autoplay="false"
-        muted="true"
         preload="auto">
       </a-video>
     </a-marker>
@@ -102,33 +100,49 @@
 
   <script>
     const marker = document.getElementById('marker');
-    const scanText = document.getElementById('scanText');
+    const instructionText = document.getElementById('scanText');
     const arVideo = document.getElementById('arVideo');
+
+    // Перевірка підтримки WebRTC
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.error('Ваш браузер не підтримує WebRTC. AR-функціонал недоступний.');
+      instructionText.textContent = 'AR не підтримується вашим пристроєм.';
+    }
 
     // Встановлюємо пропорції відео після завантаження метаданих
     arVideo.addEventListener('loadedmetadata', () => {
-      const aspect = arVideo.videoWidth / arVideo.videoHeight;
-      arVideo.setAttribute('width', aspect);
-      arVideo.setAttribute('height', 1);
+      if (arVideo.videoWidth && arVideo.videoHeight) {
+        const aspect = arVideo.videoWidth / arVideo.videoHeight;
+        arVideo.setAttribute('width', aspect);
+        arVideo.setAttribute('height', 1);
+      } else {
+        console.error('Не вдалося отримати метадані відео.');
+      }
+    });
+
+    arVideo.addEventListener('error', (e) => {
+      console.error('Помилка завантаження відео:', e);
     });
 
     // Коли маркер знайдено
     marker.addEventListener('markerFound', () => {
-      scanText.style.display = 'none';
-      arVideo.muted = false; // тепер можна увімкнути звук
+      instructionText.style.display = 'none';
+      arVideo.muted = false;
       arVideo.play().catch(e => console.error("Відео не відтворилось:", e));
     });
 
     // Коли маркер втрачено
     marker.addEventListener('markerLost', () => {
-      scanText.style.display = 'block';
+      instructionText.style.display = 'block';
       arVideo.pause();
     });
 
-    // 🔊 Активація медіа при кліку (необхідно для звуку)
+    // Активація медіа при кліку
     document.body.addEventListener('click', () => {
-      arVideo.play().catch(() => {});
-    }, { once: true });
+      if (arVideo.paused) {
+        arVideo.play().catch(() => {});
+      }
+    });
 
     // Фікс висоти для мобільних браузерів
     function fixHeight() {
