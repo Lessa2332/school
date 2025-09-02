@@ -3,12 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>AR Камера</title>
-
-  <!-- Стабільні CDN -->
+  <title>AR Камера — Чарівне Пригодництво!</title>
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.0/aframe/build/aframe-ar.js"></script>
-
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -16,41 +13,96 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      touch-action: manipulation;
-      font-family: Arial, sans-serif;
-      background: #000;
+      touch-action: none;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: transparent;
     }
-
     a-scene {
       width: 100% !important;
       height: 100% !important;
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 1;
+      background: transparent;
     }
 
+    /* Інструкція перед скануванням */
     #scanText {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: #FFD700;
+      color: #FF69B4;
       font-size: 2em;
       font-weight: bold;
-      text-shadow: 2px 2px 6px #000;
+      text-shadow: 2px 2px 10px yellow, 0 0 10px #ff00ff;
       z-index: 10;
       text-align: center;
       width: 90%;
-      pointer-events: none;
+      animation: pulse 1.5s infinite;
+      background: rgba(255, 255, 0, 0.9);
+      padding: 15px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+    }
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.1); }
+      100% { transform: translate(-50%, -50%) scale(1); }
     }
 
+    /* Маленька жовта крапка */
+    #centerYellowDot {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 12px;
+      background: #FFD700;
+      border-radius: 50%;
+      z-index: 10;
+      display: none;
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+      opacity: 0.9;
+      animation: glow 2s infinite alternate;
+    }
+    @keyframes glow {
+      from { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+      to { box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
+    }
+
+    /* Кнопка запуску відео */
+    #playVideoBtn {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4CAF50;
+      color: white;
+      padding: 16px 32px;
+      border-radius: 30px;
+      font-size: 1.3em;
+      font-weight: bold;
+      border: none;
+      z-index: 10;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+      display: none;
+      cursor: pointer;
+      animation: popUp 0.5s forwards;
+    }
+    @keyframes popUp {
+      from { opacity: 0; transform: translateX(-50%) scale(0.8); }
+      to { opacity: 1; transform: translateX(-50%) scale(1); }
+    }
+
+    /* Кнопка SmartLessa */
     #smartLessaBtn {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: #ff0044;
+      background: linear-gradient(45deg, #ff0044, #ff6600);
       color: white;
       padding: 14px 24px;
       border-radius: 30px;
@@ -58,98 +110,107 @@
       font-weight: bold;
       text-decoration: none;
       z-index: 10;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-
-    #smartLessaBtn:hover,
-    #smartLessaBtn:active {
-      background: #cc0036;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
     }
   </style>
 </head>
 <body>
 
   <!-- Інструкція -->
-  <div id="scanText">Наведи на зображення</div>
+  <div id="scanText">🔍 Наведи на зображення!</div>
+
+  <!-- Жовта крапка -->
+  <div id="centerYellowDot"></div>
+
+  <!-- Кнопка запуску відео -->
+  <button id="playVideoBtn" onclick="playVideo()">▶️ Запустити відео</button>
 
   <!-- AR Сцена -->
-  <a-scene 
-    arjs="sourceType: webcam;
-          detectionMode: mono;
-          trackingMethod: best;
-          debugUIEnabled: false;">
-    
+  <a-scene embedded arjs="sourceType: webcam; detectionMode: mono; trackingMethod: best;">
     <a-marker id="marker" type="pattern" url="marker.patt">
       <a-video 
         id="arVideo" 
         src="ar-video.mp4" 
         position="0 0 0" 
-        rotation="-90 0 0"
-        width="1.77"
-        height="1"
-        preload="auto">
+        rotation="-90 0 0" 
+        preload="none"
+        autoplay="false"
+        muted="true">
       </a-video>
     </a-marker>
-    
     <a-entity camera></a-entity>
   </a-scene>
 
-  <!-- Посилання -->
+  <!-- Кнопка YouTube -->
   <a href="https://youtube.com/playlist?list=PL6UDFwT9TzFxsVdFiEBsQ9yFpcYRPOpfO&si=IyXv1SkdPyvhcW7Z" 
-     id="smartLessaBtn" target="_blank">@SmartLessa</a>
+     id="smartLessaBtn" target="_blank">👉 Дивись більше на @SmartLessa</a>
+
+  <!-- Звуковий ефект -->
+  <audio id="successSound" src="https://cdn.pixabay.com/audio/2021/09/21/audio_2811f3692c.mp3" preload="auto"></audio>
 
   <script>
     const marker = document.getElementById('marker');
-    const instructionText = document.getElementById('scanText');
+    const scanText = document.getElementById('scanText');
+    const centerYellowDot = document.getElementById('centerYellowDot');
+    const playVideoBtn = document.getElementById('playVideoBtn');
     const arVideo = document.getElementById('arVideo');
+    const successSound = document.getElementById('successSound');
 
-    // Перевірка підтримки WebRTC
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      console.error('Ваш браузер не підтримує WebRTC. AR-функціонал недоступний.');
-      instructionText.textContent = 'AR не підтримується вашим пристроєм.';
-    }
-
-    // Встановлюємо пропорції відео після завантаження метаданих
+    // Автоматичні пропорції відео (9:16, 16:9 тощо)
     arVideo.addEventListener('loadedmetadata', () => {
-      if (arVideo.videoWidth && arVideo.videoHeight) {
-        const aspect = arVideo.videoWidth / arVideo.videoHeight;
-        arVideo.setAttribute('width', aspect);
-        arVideo.setAttribute('height', 1);
-      } else {
-        console.error('Не вдалося отримати метадані відео.');
-      }
+      const videoWidth = arVideo.videoWidth;
+      const videoHeight = arVideo.videoHeight;
+      const scaleFactor = 2;
+      const height = (videoHeight / 100) * scaleFactor;
+      const width = (videoWidth / videoHeight) * height;
+      arVideo.setAttribute('width', width);
+      arVideo.setAttribute('height', height);
     });
 
-    arVideo.addEventListener('error', (e) => {
-      console.error('Помилка завантаження відео:', e);
-    });
-
-    // Коли маркер знайдено
+    // Маркер знайдено — показуємо кнопку
     marker.addEventListener('markerFound', () => {
-      instructionText.style.display = 'none';
-      arVideo.muted = false;
-      arVideo.play().catch(e => console.error("Відео не відтворилось:", e));
+      scanText.style.display = 'none';
+      centerYellowDot.style.display = 'block';
+      playVideoBtn.style.display = 'block'; // Показуємо кнопку
     });
 
-    // Коли маркер втрачено
+    // Маркер втрачено — приховуємо все
     marker.addEventListener('markerLost', () => {
-      instructionText.style.display = 'block';
+      scanText.style.display = 'block';
+      centerYellowDot.style.display = 'none';
+      playVideoBtn.style.display = 'none';
       arVideo.pause();
     });
 
-    // Активація медіа при кліку
-    document.body.addEventListener('click', () => {
-      if (arVideo.paused) {
-        arVideo.play().catch(() => {});
-      }
-    });
+    // Функція запуску відео
+    function playVideo() {
+      arVideo.play().then(() => {
+        successSound.play().catch(() => {});
+        playVideoBtn.style.display = 'none'; // Приховуємо кнопку після запуску
+      }).catch(err => {
+        console.error("Не вдалося відтворити відео:", err);
+        alert("Натисни ще раз — відео запуститься!");
+      });
+    }
 
-    // Фікс висоти для мобільних браузерів
+    // Активація звуку (на випадок, якщо потрібен клік)
+    document.body.addEventListener('click', () => {
+      successSound.play().catch(() => {});
+    }, { once: true });
+
+    // Фікс висоти
     function fixHeight() {
       document.body.style.height = window.innerHeight + 'px';
     }
     window.addEventListener('resize', fixHeight);
     fixHeight();
+
+    // Задня камера
+    AFRAME.utils.device.getCameraPermission = function () {
+      return navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' }
+      });
+    };
   </script>
 </body>
 </html>
